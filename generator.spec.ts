@@ -101,7 +101,7 @@ describe("getColorGroups", () => {
 describe("generateAllSignificantWithRepetition", () => {
     it("does not uses other colors from group until previous one has been used", () => {
         const result = generateAllSignificantWithRepetition(2, [
-            ["1", "2"],
+            ["1", "2", "4"],
             ["3"],
         ]);
         expect(result).toEqual(["11", "12", "13", "31", "33"]);
