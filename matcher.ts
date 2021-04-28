@@ -5,17 +5,19 @@ export function match(a: string, b: string) {
         if (a[i] === b[i]) exact++;
     }
     let color = -exact; // exact matches are also color, skip these
-    const da = toDict(a);
-    const db = toDict(b);
-    for (let letter in da) {
-        color += Math.min(da[letter], db[letter] | 0);
+    const ua = getColorUsageCounts(a);
+    const ub = getColorUsageCounts(b);
+    for (let letter of ua.keys()) {
+        color += Math.min(ua.get(letter)!, ub.get(letter) ?? 0);
     }
     return { exact, color };
 }
 
-function toDict(word: string) {
-    return word.split("").reduce((p, c) => {
-        p[c] = (p[c] || 0) + 1;
-        return p;
-    }, {} as { [letter: string]: number });
+export function getColorUsageCounts(word: string) {
+    return word
+        .split("")
+        .reduce(
+            (p, c) => p.set(c, (p.get(c) || 0) + 1),
+            new Map<string, number>()
+        );
 }

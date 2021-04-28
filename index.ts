@@ -1,7 +1,7 @@
 import { generateAll } from "./generator";
 import { match } from "./matcher";
 
-const all = generateAll({ colors: 8, positions: 5, repetition: false });
+const all = generateAll({ colorCount: 8, positionCount: 5, repetition: false });
 console.log(all.length);
 const matched = all
     .map((c) => match(c, "11345"))
