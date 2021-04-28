@@ -1,4 +1,4 @@
-import { getColorUsageCounts } from "./matcher";
+import { getLetterUsageCounts, groupBy } from "./utils";
 
 interface IOptions {
     colorCount: number;
@@ -44,20 +44,13 @@ function generateAllWithoutRepetition(colors: string[], positionCount: number) {
 }
 
 export function getColorGroups(previousTries: string[], colorCount: number) {
-    const colorUsageCounts = previousTries.map(getColorUsageCounts);
+    const colorUsageCounts = previousTries.map(getLetterUsageCounts);
     const colors = enumerateAllColors(colorCount);
     return Array.from(
         groupBy(colors, (c) =>
             colorUsageCounts.map((ls) => ls.get(c) ?? 0).join("-")
         ).values()
     );
-}
-
-function groupBy<T, TKey>(as: T[], keyGetter: (a: T) => TKey) {
-    return as.reduce((p, a) => {
-        const key = keyGetter(a);
-        return p.set(key, [...(p.get(key) ?? []), a]);
-    }, new Map<TKey, T[]>());
 }
 
 export function generateAllSignificantWithRepetition(
