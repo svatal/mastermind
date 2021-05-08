@@ -13,3 +13,11 @@ export function getLetterUsageCounts(word: string) {
             new Map<string, number>()
         );
 }
+
+export function getCurrentPath(
+    path: { guess: string; result: string; size: number }[]
+) {
+    return path
+        .map((p) => `${p.guess} -> ${p.result} (${p.size}x)`)
+        .join(" -> ");
+}
