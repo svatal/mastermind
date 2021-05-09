@@ -1,3 +1,4 @@
+import { IOptions } from "./settings";
 import {
     Color,
     createColor,
@@ -5,12 +6,6 @@ import {
     groupBy,
     Guess,
 } from "./utils";
-
-interface IOptions {
-    colorCount: number;
-    positionCount: number;
-    repetition: boolean;
-}
 
 export function generateAll(o: IOptions) {
     if (o.repetition)

@@ -1,11 +1,17 @@
+import { getSuccessResult, IOptions } from "./settings";
 import { IBestSplit } from "./solutionEnumerator";
-import { successResult } from "./settings";
 import { split } from "./split";
-import { createEmptySplit, Guess, Split } from "./utils";
+import { createEmptySplit, Guess, MatchResult, Split } from "./utils";
 
-export function getBest(
+export function getAlg(options: IOptions) {
+    return (candidates: Guess[], problemSpace: Guess[]) =>
+        getBest(candidates, problemSpace, getSuccessResult(options));
+}
+
+function getBest(
     candidates: Guess[],
-    problemSpace: Guess[]
+    problemSpace: Guess[],
+    successResult: MatchResult
 ): IBestSplit {
     let bestCandidate: Guess = "1";
     let bestValue = problemSpace.length + 1;

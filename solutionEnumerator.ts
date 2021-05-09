@@ -3,12 +3,7 @@ import {
     generateAllSignificantWithRepetition,
     getColorGroups,
 } from "./generator";
-import {
-    positionCount,
-    colorCount,
-    repetition,
-    successResult,
-} from "./settings";
+import { getSuccessResult, IOptions } from "./settings";
 import { getCurrentPath, Guess, MatchResult, Split } from "./utils";
 
 export interface IBestSplit {
@@ -23,27 +18,30 @@ interface IResult {
 }
 
 export function solve(
+    options: IOptions,
     getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
 ) {
-    const all = generateAll({ colorCount, positionCount, repetition });
+    const all = generateAll(options);
     console.log("all", all.length);
 
     const significant = generateAllSignificantWithRepetition(
-        positionCount,
-        getColorGroups([], colorCount)
+        options.positionCount,
+        getColorGroups([], options.colorCount)
     );
     console.log("significant", significant.length);
 
-    return minMax(all, [], significant, getBestSplit);
+    return minMax(all, [], significant, options, getBestSplit);
 }
 
 function minMax(
     problemSpace: Guess[],
     previous: { guess: Guess; result: MatchResult; size: number }[],
     significantCandidates: Guess[],
+    options: IOptions,
     getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
 ): IResult {
     if (problemSpace.length === 1) {
+        const successResult = getSuccessResult(options);
         const current =
             previous.length > 0 &&
             previous[previous.length - 1].result !== successResult
@@ -67,10 +65,10 @@ function minMax(
     const split = getBestSplit(significantCandidates, problemSpace);
     const colorGroups = getColorGroups(
         [...previous.map((p) => p.guess), split.bestCandidate],
-        colorCount
+        options.colorCount
     );
     const newSignificantCandidates = generateAllSignificantWithRepetition(
-        positionCount,
+        options.positionCount,
         colorGroups
     );
     const results = Array.from(
@@ -83,6 +81,7 @@ function minMax(
                 { guess: split.bestCandidate, result, size: candidates.length },
             ],
             newSignificantCandidates,
+            options,
             getBestSplit
         )
     );
