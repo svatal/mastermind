@@ -1,14 +1,15 @@
 import { IBestSplit } from "./solutionEnumerator";
 import { successResult } from "./settings";
 import { split } from "./split";
+import { createEmptySplit, Guess, Split } from "./utils";
 
 export function getBest(
-    candidates: string[],
-    problemSpace: string[]
+    candidates: Guess[],
+    problemSpace: Guess[]
 ): IBestSplit {
-    let bestCandidate = "";
+    let bestCandidate: Guess = "1";
     let bestValue = problemSpace.length + 1;
-    let bestSplit = new Map<string, string[]>();
+    let bestSplit = createEmptySplit();
     candidates.forEach((candidate) => {
         const s = split(candidate, problemSpace);
         const v = getSplitValue(s);
@@ -28,6 +29,6 @@ export function getBest(
     return { bestCandidate, bestSplit };
 }
 
-function getSplitValue(split: Map<string, string[]>) {
+function getSplitValue(split: Split) {
     return Math.max(...Array.from(split.values()).map((v) => v.length));
 }

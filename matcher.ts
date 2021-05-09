@@ -1,6 +1,6 @@
-import { getLetterUsageCounts } from "./utils";
+import { getLetterUsageCounts, Guess, IMatch } from "./utils";
 
-export function match(a: string, b: string) {
+export function match(a: Guess, b: Guess): IMatch {
     const len = a.length;
     let exact = 0;
     for (let i = 0; i < len; i++) {

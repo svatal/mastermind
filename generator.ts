@@ -1,4 +1,10 @@
-import { getLetterUsageCounts, groupBy } from "./utils";
+import {
+    Color,
+    createColor,
+    getLetterUsageCounts,
+    groupBy,
+    Guess,
+} from "./utils";
 
 interface IOptions {
     colorCount: number;
@@ -15,32 +21,42 @@ export function generateAll(o: IOptions) {
     );
 }
 
-function enumerateAllColors(colorCount: number) {
-    return Array.from({ length: colorCount }, (_, i) => `${i + 1}`);
+function enumerateAllColors(colorCount: number): Color[] {
+    return Array.from({ length: colorCount }, (_, i) => createColor(i + 1));
 }
 
-function generateAllWithRepetition(colorCount: number, positionCount: number) {
-    if (positionCount === 0) return [""];
+function generateAllWithRepetition(
+    colorCount: number,
+    positionCount: number
+): Guess[] {
+    if (positionCount === 1) return enumerateAllColors(colorCount);
     const shorter = generateAllWithRepetition(colorCount, positionCount - 1);
-    let results = [] as string[];
+    let results: Guess[] = [];
     for (let c = 1; c <= colorCount; c++) {
-        results.push(...shorter.map((w) => `${c}${w}`));
+        results.push(...shorter.map((w) => expandGuess(c, w)));
     }
     return results;
 }
 
-function generateAllWithoutRepetition(colors: string[], positionCount: number) {
-    if (positionCount === 0) return [""];
-    let results = [] as string[];
+function generateAllWithoutRepetition(
+    colors: Color[],
+    positionCount: number
+): Guess[] {
+    if (positionCount === 1) return [...colors];
+    let results: Guess[] = [];
     for (let c of colors) {
         results.push(
             ...generateAllWithoutRepetition(
                 colors.filter((c2) => c != c2),
                 positionCount - 1
-            ).map((w) => `${c}${w}`)
+            ).map((w) => expandGuess(c, w))
         );
     }
     return results;
+}
+
+function expandGuess(color: Color | number, partialGuess: Guess): Guess {
+    return `${color}${partialGuess}` as Guess;
 }
 
 export function getColorGroups(previousTries: string[], colorCount: number) {
@@ -55,10 +71,10 @@ export function getColorGroups(previousTries: string[], colorCount: number) {
 
 export function generateAllSignificantWithRepetition(
     positionCount: number,
-    colorGroups: string[][]
-) {
-    if (positionCount === 0) return [""];
-    let results = [] as string[];
+    colorGroups: Color[][]
+): Guess[] {
+    if (positionCount === 1) return colorGroups.map((g) => g[0]);
+    let results: Guess[] = [];
     for (let cg of colorGroups) {
         results.push(
             ...generateAllSignificantWithRepetition(
@@ -71,7 +87,7 @@ export function generateAllSignificantWithRepetition(
                               cg !== cg2 ? cg2 : cg2.slice(1)
                           ),
                       ]
-            ).map((w) => `${cg[0]}${w}`)
+            ).map((w) => expandGuess(cg[0], w))
         );
     }
     return results;

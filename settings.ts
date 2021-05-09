@@ -1,3 +1,5 @@
+import { createMatchResult } from "./utils";
+
 export const colorCount = 8;
 export const positionCount = 5;
 export const repetition = false;
@@ -6,4 +8,7 @@ export const repetition = false;
 // export const positionCount = 4;
 // export const repetition = true;
 
-export const successResult = `${positionCount}-0`;
+export const successResult = createMatchResult({
+    exact: positionCount,
+    color: 0,
+});

@@ -9,11 +9,11 @@ import {
     repetition,
     successResult,
 } from "./settings";
-import { getCurrentPath } from "./utils";
+import { getCurrentPath, Guess, MatchResult, Split } from "./utils";
 
 export interface IBestSplit {
-    bestCandidate: string;
-    bestSplit: Map<string, string[]>;
+    bestCandidate: Guess;
+    bestSplit: Split;
 }
 
 interface IResult {
@@ -23,7 +23,7 @@ interface IResult {
 }
 
 export function solve(
-    getBestSplit: (candidates: string[], problemSpace: string[]) => IBestSplit
+    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
 ) {
     const all = generateAll({ colorCount, positionCount, repetition });
     console.log("all", all.length);
@@ -38,10 +38,10 @@ export function solve(
 }
 
 function minMax(
-    problemSpace: string[],
-    previous: { guess: string; result: string; size: number }[],
-    significantCandidates: string[],
-    getBestSplit: (candidates: string[], problemSpace: string[]) => IBestSplit
+    problemSpace: Guess[],
+    previous: { guess: Guess; result: MatchResult; size: number }[],
+    significantCandidates: Guess[],
+    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
 ): IResult {
     if (problemSpace.length === 1) {
         const current =
