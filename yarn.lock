@@ -2,3 +2,7 @@
 # yarn lockfile v1
 
 
+bobril@*:
+  version "17.0.0"
+  resolved "https://registry.yarnpkg.com/bobril/-/bobril-17.0.0.tgz#4e3dbb5249e84864736a93f6da528b960c6e6458"
+  integrity sha512-y/qHYPY61W/A27WjrGjSDZGkmwOa0M/+Vuc76nKZ73A2gVt/OzXLBn7CHlh2DoeN0SkeO7hFS/edrwHbQtCimQ==
