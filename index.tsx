@@ -1,8 +1,9 @@
-import { solve } from "./solutionEnumerator";
+// import { solve } from "./solutionEnumerator";
 import * as knuthAlg from "./knuthAlg";
 import { IOptions } from "./settings";
 import * as b from "bobril";
 import { Button, Form, FormRow } from "./components/form";
+import { solve } from "./steppedSolutionEnumerator";
 
 const colorCount = b.propi(8);
 const positionCount = b.propi(5);
