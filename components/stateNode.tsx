@@ -19,6 +19,7 @@ export function StateNode(p: { state: IState }) {
             {state.size}) {state.children === undefined && "⌛"}
             {isSolvedState(state) && `max ${state.max}, avg ${state.avg}`}
             <div
+                key="children"
                 style={{
                     marginLeft: 10,
                     display: isExpanded() ? "block" : "none",
