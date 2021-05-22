@@ -1,49 +1,24 @@
 import {
     getColorGroups,
     generateAllSignificantWithRepetition,
-    generateAll,
 } from "./generator";
 import { match } from "./matcher";
 import { getSuccessResult, IOptions } from "./settings";
 import { IBestSplit } from "./solutionEnumerator";
 import { Guess, MatchResult, createMatchResult, getCurrentPath } from "./utils";
 
-export function solve(
-    options: IOptions,
-    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
-) {
-    const all = generateAll(options);
-    console.log(all.length);
-    const root: IState = { size: all.length };
-    const toDo = [root];
-    let current: IState | undefined = undefined;
-    while ((current = toDo.pop())) {
-        const processedState = step(all, options, getBestSplit, current);
-        const statePath = getStatePath(processedState);
-        console.log("path", getCurrentPath(statePath));
-        toDo.push(...processedState.children);
-        console.log("remaining", toDo.length);
-    }
-    const solved = root as ISolvedState;
-    return {
-        avg: solved.avg,
-        max: solved.max,
-        count: solved.size,
-    };
-}
-
-interface IState {
+export interface IState {
     children?: IState[];
     size: number;
 }
 
-interface IGuessState extends IState {
+export interface IGuessState extends IState {
     parent: IProcessedState;
     guess: Guess;
     result: MatchResult;
 }
 
-function isGuessState(s: IState): s is IGuessState {
+export function isGuessState(s: IState): s is IGuessState {
     const ownKey: keyof IGuessState = "guess";
     return ownKey in s;
 }
@@ -61,7 +36,7 @@ function enrichToProcessedState(
     return s as IProcessedState;
 }
 
-interface ISolvedState extends IProcessedState {
+export interface ISolvedState extends IProcessedState {
     max: number;
     avg: number;
 }
