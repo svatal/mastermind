@@ -11,7 +11,10 @@ export function StateNode(p: { state: IState }) {
     const { state } = p;
     return (
         <div>
-            <BoolSwitch prop={isExpanded} />
+            <BoolSwitch
+                prop={isExpanded}
+                isDisabled={state.children === undefined}
+            />
             {isGuessState(state) && `${state.guess} -> ${state.result} `}(
             {state.size}) {state.children === undefined && "⌛"}
             {isSolvedState(state) && `max ${state.max}, avg ${state.avg}`}
