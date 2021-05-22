@@ -17,14 +17,9 @@ export function SolutionEnumerator(p: {
     const root = b.useStore(() => ({ size: all.length } as IState));
     const toDo = b.useStore(() => [root]);
     const [steps, setSteps] = b.useState(0);
-    const [result, setResult] = b.useState<
-        { avg: number; max: number } | undefined
-    >(undefined);
     const oneStep = b.useCallback(() => {
         const current = toDo.pop();
         if (!current) {
-            const solved = root as ISolvedState;
-            setResult({ avg: solved.avg, max: solved.max });
             return;
         }
         const processedState = step(all, p.options, p.getBestSplit(), current);
@@ -37,9 +32,6 @@ export function SolutionEnumerator(p: {
         <div>
             <div>processing buffer: {toDo.length}</div>
             <div>steps taken: {steps}</div>
-            <div>
-                result: {result ? `avg ${result.avg}, max ${result.max}` : ""}
-            </div>
             <StateNode state={root} />
         </div>
     );

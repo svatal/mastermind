@@ -1,21 +1,27 @@
 import * as b from "bobril";
-import { IState, isGuessState } from "../steppedSolutionEnumerator";
+import {
+    IState,
+    isGuessState,
+    isSolvedState,
+} from "../steppedSolutionEnumerator";
 import { BoolSwitch } from "./boolSwitch";
 
 export function StateNode(p: { state: IState }) {
     const isExpanded = b.useState(false);
+    const { state } = p;
     return (
         <div>
             <BoolSwitch prop={isExpanded} />
-            {isGuessState(p.state) && `${p.state.guess} -> ${p.state.result} `}(
-            {p.state.size}) {p.state.children === undefined && "⌛"}
+            {isGuessState(state) && `${state.guess} -> ${state.result} `}(
+            {state.size}) {state.children === undefined && "⌛"}
+            {isSolvedState(state) && `max ${state.max}, avg ${state.avg}`}
             <div
                 style={{
                     marginLeft: 10,
                     display: isExpanded() ? "block" : "none",
                 }}
             >
-                {p.state.children?.map((c) => (
+                {state.children?.map((c) => (
                     <StateNode state={c} />
                 ))}
             </div>

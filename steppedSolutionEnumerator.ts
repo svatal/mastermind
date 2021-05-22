@@ -41,7 +41,7 @@ export interface ISolvedState extends IProcessedState {
     avg: number;
 }
 
-function isSolvedState(s: IState): s is ISolvedState {
+export function isSolvedState(s: IState): s is ISolvedState {
     const ownKey: keyof ISolvedState = "max";
     return ownKey in s;
 }
