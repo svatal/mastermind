@@ -8,14 +8,40 @@ import { IBestSplit } from "./solutionEnumerator";
 import { Guess, MatchResult, createMatchResult, getCurrentPath } from "./utils";
 
 export interface IState {
-    children?: IState[];
     size: number;
 }
 
-export interface IGuessState extends IState {
-    parent: IProcessedState;
-    guess: Guess;
+export interface IResultState extends IState {
+    parent: IGuessState;
     result: MatchResult;
+}
+
+export function isResultState(s: IState): s is IResultState {
+    const ownKey: keyof IResultState = "result";
+    return ownKey in s;
+}
+
+interface IProcessedState extends IState {
+    parent?: IGuessState;
+    children: IState[];
+}
+
+export function isProcessedState(s: IState): s is IProcessedState {
+    const ownKey: keyof IProcessedState = "children";
+    return ownKey in s;
+}
+
+function enrichToProcessedState(
+    s: IState,
+    children: IResultState[]
+): IProcessedState {
+    const ps = s as IProcessedState;
+    ps.children = children;
+    return ps;
+}
+
+interface IGuessState extends IProcessedState {
+    guess: Guess;
 }
 
 export function isGuessState(s: IState): s is IGuessState {
@@ -23,17 +49,15 @@ export function isGuessState(s: IState): s is IGuessState {
     return ownKey in s;
 }
 
-interface IProcessedState extends IState {
-    parent?: IProcessedState;
-    children: IState[];
-}
-
-function enrichToProcessedState(
+function enrichToGuessState(
     s: IState,
-    children: IGuessState[]
-): IProcessedState {
-    s.children = children;
-    return s as IProcessedState;
+    guess: Guess,
+    children: IResultState[]
+): IGuessState {
+    const gs = s as IGuessState;
+    gs.children = children;
+    gs.guess = guess;
+    return gs;
 }
 
 export interface ISolvedState extends IProcessedState {
@@ -50,8 +74,7 @@ function solveState(s: IProcessedState, options: IOptions) {
     const solvedChildren = s.children.filter(isSolvedState);
     if (s.children.length !== solvedChildren.length) return;
     if (solvedChildren.length === 0) {
-        const moves =
-            isGuessState(s) && s.result === getSuccessResult(options) ? 0 : 1;
+        const moves = isGuessState(s) ? 1 : 0;
         enrichToSolvedState(s, moves, moves);
     } else {
         enrichToSolvedState(
@@ -75,17 +98,26 @@ export function step(
     getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit,
     state: IState
 ): IProcessedState {
-    if (state.size === 1) {
+    if (
+        state.size === 1 &&
+        isResultState(state) &&
+        state.result === getSuccessResult(options)
+    ) {
         const s = enrichToProcessedState(state, []);
         solveState(s, options);
         return s;
     }
-    const statePath = getStatePath(state);
+    const statePath = getPath(state);
     const problemSpace = all.filter((g) =>
         statePath.every(
             (s) => createMatchResult(match(g, s.guess)) === s.result
         )
     );
+    if (problemSpace.length === 1) {
+        const s = enrichToGuessState(state, problemSpace[0], []);
+        solveState(s, options);
+        return s;
+    }
     const colorGroups = getColorGroups(
         statePath.map((p) => p.guess),
         options.colorCount
@@ -95,12 +127,12 @@ export function step(
         colorGroups
     );
     const split = getBestSplit(candidates, problemSpace);
-    return enrichToProcessedState(
+    return enrichToGuessState(
         state,
-        Array.from(split.bestSplit.entries()).map<IGuessState>(
+        split.bestCandidate,
+        Array.from(split.bestSplit.entries()).map<IResultState>(
             ([result, guesses]) => ({
-                parent: state as IProcessedState,
-                guess: split.bestCandidate,
+                parent: state as IGuessState,
                 result,
                 size: guesses.length,
             })
@@ -108,6 +140,11 @@ export function step(
     );
 }
 
-function getStatePath(state: IState): IGuessState[] {
-    return isGuessState(state) ? [...getStatePath(state.parent), state] : [];
+function getPath(state: IState): { guess: Guess; result: MatchResult }[] {
+    return isResultState(state)
+        ? [
+              ...getPath(state.parent),
+              { guess: state.parent.guess, result: state.result },
+          ]
+        : [];
 }
