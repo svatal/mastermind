@@ -18,10 +18,13 @@ export function SolutionEnumerator(p: {
     const root = b.useStore(() => ({ size: all.length } as IState));
     const toDo = b.useStore(() => [root]);
     const [steps, setSteps] = b.useState(0);
-    const timeoutRef = b.useRef<ReturnType<typeof setTimeout>>(undefined);
+    const timeoutRef = b.useRef<ReturnType<typeof setTimeout> | undefined>(
+        undefined
+    );
     const oneStep = b.useCallback(() => {
         const current = toDo.pop();
         if (!current) {
+            timeoutRef.current = undefined;
             return;
         }
         const processedState = step(all, p.options, p.getBestSplit(), current);
@@ -32,7 +35,7 @@ export function SolutionEnumerator(p: {
     b.useEffect(() => {
         !p.paused && oneStep();
         return () => {
-            if (timeoutRef.current) {
+            if (timeoutRef.current !== undefined) {
                 clearTimeout(timeoutRef.current);
             }
         };

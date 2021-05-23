@@ -54,7 +54,7 @@ function expandGuess(color: Color | number, partialGuess: Guess): Guess {
     return `${color}${partialGuess}` as Guess;
 }
 
-export function getColorGroups(previousTries: string[], colorCount: number) {
+export function getColorGroups(previousTries: Guess[], colorCount: number) {
     const colorUsageCounts = previousTries.map(getLetterUsageCounts);
     const colors = enumerateAllColors(colorCount);
     return Array.from(
