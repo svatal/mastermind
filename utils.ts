@@ -33,13 +33,19 @@ export function groupBy<T, TKey>(as: T[], keyGetter: (a: T) => TKey) {
     }, new Map<TKey, T[]>());
 }
 
+const letterUsageCache = new Map<string, Map<string, number>>();
+
 export function getLetterUsageCounts(word: string) {
-    return word
+    let result = letterUsageCache.get(word);
+    if (result) return result;
+    result = word
         .split("")
         .reduce(
             (p, c) => p.set(c, (p.get(c) || 0) + 1),
             new Map<string, number>()
         );
+    letterUsageCache.set(word, result);
+    return result;
 }
 
 export function getCurrentPath(

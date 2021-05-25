@@ -19,12 +19,11 @@ export function StateNode(p: { state: IState }) {
             {isGuessState(state) && `-> ${state.guess} `}
             {!isProcessedState(state) && "⌛"}
             {isSolvedState(state) && `max ${state.max}, avg ${state.avg}`}
-            {isProcessedState(state) && haveChildren && (
+            {isProcessedState(state) && haveChildren && isExpanded() && (
                 <div
                     key="children"
                     style={{
                         marginLeft: 10,
-                        display: isExpanded() ? "block" : "none",
                     }}
                 >
                     {state.children.map((c) => (
