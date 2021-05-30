@@ -5,7 +5,13 @@ import {
 import { match } from "./matcher";
 import { getSuccessResult, IOptions } from "./settings";
 import { IBestSplit } from "./solutionEnumerator";
-import { Guess, MatchResult, createMatchResult, getCurrentPath } from "./utils";
+import {
+    Guess,
+    MatchResult,
+    createMatchResult,
+    getCurrentPath,
+    GetLetterUsageCounts,
+} from "./utils";
 
 export interface IState {
     size: number;
@@ -95,8 +101,13 @@ function enrichToSolvedState(s: IProcessedState, max: number, avg: number) {
 export function step(
     all: Guess[],
     options: IOptions,
-    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit,
-    state: IState
+    getBestSplit: (
+        candidates: Guess[],
+        problemSpace: Guess[],
+        getLetterUsageCounts: GetLetterUsageCounts
+    ) => IBestSplit,
+    state: IState,
+    getLetterUsageCounts: GetLetterUsageCounts
 ): IProcessedState {
     if (
         state.size === 1 &&
@@ -110,7 +121,9 @@ export function step(
     const statePath = getPath(state);
     const problemSpace = all.filter((g) =>
         statePath.every(
-            (s) => createMatchResult(match(g, s.guess)) === s.result
+            (s) =>
+                createMatchResult(match(g, s.guess, getLetterUsageCounts)) ===
+                s.result
         )
     );
     if (problemSpace.length === 1) {
@@ -120,13 +133,14 @@ export function step(
     }
     const colorGroups = getColorGroups(
         statePath.map((p) => p.guess),
-        options.colorCount
+        options.colorCount,
+        getLetterUsageCounts
     );
     const candidates = generateAllSignificantWithRepetition(
         options.positionCount,
         colorGroups
     );
-    const split = getBestSplit(candidates, problemSpace);
+    const split = getBestSplit(candidates, problemSpace, getLetterUsageCounts);
     return enrichToGuessState(
         state,
         split.bestCandidate,

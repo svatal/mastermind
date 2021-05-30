@@ -2,7 +2,7 @@ import { IOptions } from "./settings";
 import {
     Color,
     createColor,
-    getLetterUsageCounts,
+    GetLetterUsageCounts,
     groupBy,
     Guess,
 } from "./utils";
@@ -54,7 +54,11 @@ function expandGuess(color: Color | number, partialGuess: Guess): Guess {
     return `${color}${partialGuess}` as Guess;
 }
 
-export function getColorGroups(previousTries: Guess[], colorCount: number) {
+export function getColorGroups(
+    previousTries: Guess[],
+    colorCount: number,
+    getLetterUsageCounts: GetLetterUsageCounts
+) {
     const colorUsageCounts = previousTries.map(getLetterUsageCounts);
     const colors = enumerateAllColors(colorCount);
     return Array.from(

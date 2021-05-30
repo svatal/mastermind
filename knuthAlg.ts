@@ -1,23 +1,39 @@
 import { getSuccessResult, IOptions } from "./settings";
 import { IBestSplit } from "./solutionEnumerator";
 import { split } from "./split";
-import { createEmptySplit, Guess, MatchResult, Split } from "./utils";
+import {
+    createEmptySplit,
+    GetLetterUsageCounts,
+    Guess,
+    MatchResult,
+    Split,
+} from "./utils";
 
 export function getAlg(options: IOptions) {
-    return (candidates: Guess[], problemSpace: Guess[]) =>
-        getBest(candidates, problemSpace, getSuccessResult(options));
+    return (
+        candidates: Guess[],
+        problemSpace: Guess[],
+        getLetterUsageCounts: GetLetterUsageCounts
+    ) =>
+        getBest(
+            candidates,
+            problemSpace,
+            getSuccessResult(options),
+            getLetterUsageCounts
+        );
 }
 
 function getBest(
     candidates: Guess[],
     problemSpace: Guess[],
-    successResult: MatchResult
+    successResult: MatchResult,
+    getLetterUsageCounts: GetLetterUsageCounts
 ): IBestSplit {
     let bestCandidate: Guess = "1";
     let bestValue = problemSpace.length + 1;
     let bestSplit = createEmptySplit();
     candidates.forEach((candidate) => {
-        const s = split(candidate, problemSpace);
+        const s = split(candidate, problemSpace, getLetterUsageCounts);
         const v = getSplitValue(s);
         // console.log("split", candidate, v, s);
         if (

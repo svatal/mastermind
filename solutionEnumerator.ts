@@ -4,7 +4,13 @@ import {
     getColorGroups,
 } from "./generator";
 import { getSuccessResult, IOptions } from "./settings";
-import { getCurrentPath, Guess, MatchResult, Split } from "./utils";
+import {
+    getCurrentPath,
+    GetLetterUsageCounts,
+    Guess,
+    MatchResult,
+    Split,
+} from "./utils";
 
 export interface IBestSplit {
     bestCandidate: Guess;
@@ -19,18 +25,26 @@ interface IResult {
 
 export function solve(
     options: IOptions,
-    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
+    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit,
+    getLetterUsageCounts: GetLetterUsageCounts
 ) {
     const all = generateAll(options);
     console.log("all", all.length);
 
     const significant = generateAllSignificantWithRepetition(
         options.positionCount,
-        getColorGroups([], options.colorCount)
+        getColorGroups([], options.colorCount, getLetterUsageCounts)
     );
     console.log("significant", significant.length);
 
-    return minMax(all, [], significant, options, getBestSplit);
+    return minMax(
+        all,
+        [],
+        significant,
+        options,
+        getBestSplit,
+        getLetterUsageCounts
+    );
 }
 
 function minMax(
@@ -38,7 +52,8 @@ function minMax(
     previous: { guess: Guess; result: MatchResult; size: number }[],
     significantCandidates: Guess[],
     options: IOptions,
-    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit
+    getBestSplit: (candidates: Guess[], problemSpace: Guess[]) => IBestSplit,
+    getLetterUsageCounts: GetLetterUsageCounts
 ): IResult {
     if (problemSpace.length === 1) {
         const successResult = getSuccessResult(options);
@@ -65,7 +80,8 @@ function minMax(
     const split = getBestSplit(significantCandidates, problemSpace);
     const colorGroups = getColorGroups(
         [...previous.map((p) => p.guess), split.bestCandidate],
-        options.colorCount
+        options.colorCount,
+        getLetterUsageCounts
     );
     const newSignificantCandidates = generateAllSignificantWithRepetition(
         options.positionCount,
@@ -82,7 +98,8 @@ function minMax(
             ],
             newSignificantCandidates,
             options,
-            getBestSplit
+            getBestSplit,
+            getLetterUsageCounts
         )
     );
     return {

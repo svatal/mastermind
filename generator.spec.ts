@@ -3,6 +3,7 @@ import {
     generateAllSignificantWithRepetition,
     getColorGroups,
 } from "./generator";
+import { getCachedGetLetterUsageCounts } from "./utils";
 
 describe("generator", () => {
     describe("with repetition", () => {
@@ -82,18 +83,26 @@ describe("generator", () => {
 
 describe("getColorGroups", () => {
     it("at start keeps all colors in same group", () => {
-        const result = getColorGroups([], 4);
+        const result = getColorGroups([], 4, getCachedGetLetterUsageCounts());
         expect(result).toEqual([["1", "2", "3", "4"]]);
     });
     it("after first try splits into used and not used", () => {
-        const result = getColorGroups(["12"], 4);
+        const result = getColorGroups(
+            ["12"],
+            4,
+            getCachedGetLetterUsageCounts()
+        );
         expect(result).toEqual([
             ["1", "2"],
             ["3", "4"],
         ]);
     });
     it("after second try splits into used by tries", () => {
-        const result = getColorGroups(["123", "124"], 5);
+        const result = getColorGroups(
+            ["123", "124"],
+            5,
+            getCachedGetLetterUsageCounts()
+        );
         expect(result).toEqual([["1", "2"], ["3"], ["4"], ["5"]]);
     });
 });

@@ -1,3 +1,5 @@
+import { ResultsCache } from "./resultsCache";
+
 type Digit = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type Color = `${Digit}`;
 
@@ -33,19 +35,19 @@ export function groupBy<T, TKey>(as: T[], keyGetter: (a: T) => TKey) {
     }, new Map<TKey, T[]>());
 }
 
-const letterUsageCache = new Map<string, Map<string, number>>();
-
-export function getLetterUsageCounts(word: string) {
-    let result = letterUsageCache.get(word);
-    if (result) return result;
-    result = word
+function getLetterUsageCounts(word: string) {
+    return word
         .split("")
         .reduce(
             (p, c) => p.set(c, (p.get(c) || 0) + 1),
             new Map<string, number>()
         );
-    letterUsageCache.set(word, result);
-    return result;
+}
+
+export type GetLetterUsageCounts = typeof getLetterUsageCounts;
+export function getCachedGetLetterUsageCounts() {
+    const cache = new ResultsCache(getLetterUsageCounts, (w) => w);
+    return cache.process;
 }
 
 export function getCurrentPath(

@@ -3,14 +3,19 @@ import { generateAll } from "../generator";
 import { IOptions } from "../settings";
 import { IBestSplit } from "../solutionEnumerator";
 import { IState, step } from "../steppedSolutionEnumerator";
-import { Guess } from "../utils";
+import {
+    getCachedGetLetterUsageCounts,
+    GetLetterUsageCounts,
+    Guess,
+} from "../utils";
 import { StateNode } from "./stateNode";
 
 export function SolutionEnumerator(p: {
     options: IOptions;
     getBestSplit: () => (
         candidates: Guess[],
-        problemSpace: Guess[]
+        problemSpace: Guess[],
+        getLetterUsageCounts: GetLetterUsageCounts
     ) => IBestSplit;
     paused: boolean;
 }) {
@@ -22,6 +27,8 @@ export function SolutionEnumerator(p: {
     const timeoutRef = b.useRef<ReturnType<typeof setTimeout> | undefined>(
         undefined
     );
+    const getLetterUsageCounts = b.useStore(getCachedGetLetterUsageCounts);
+    const getBestSplit = b.useStore(p.getBestSplit);
     const oneStep = b.useCallback(() => {
         const then = performance.now();
         const current = toDo.pop();
@@ -29,7 +36,13 @@ export function SolutionEnumerator(p: {
             timeoutRef.current = undefined;
             return;
         }
-        const processedState = step(all, p.options, p.getBestSplit(), current);
+        const processedState = step(
+            all,
+            p.options,
+            getBestSplit,
+            current,
+            getLetterUsageCounts
+        );
         toDo.push(...processedState.children);
         setSteps((steps) => steps + 1); // invalidate
         setTimeTaken((t) => t + (performance.now() - then));
